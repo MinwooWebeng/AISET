@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import soundfile as sf
+import os
 
 import make_audio as maudio
 import fitness
@@ -31,6 +32,7 @@ class Individual:
         processed_audio, sr = maudio.FX_to_Audio(["Compressor","Reverb"], self.genome, INPUT_AUDIO)
         sf.write("temp_audio.wav", processed_audio, sr)
         self.fitness, _, _, _ = fitness.fitness_frequency_domain("temp_audio.wav", TARGET_AUDIO)
+        os.remove("temp_audio.wav")
         # self.fitness = sum([0.25 - (x - 0.7) ** 2 for x in self.genome])
         
     def mutate(self):
