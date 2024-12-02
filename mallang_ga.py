@@ -28,9 +28,9 @@ class Individual:
         self.fitness = None
 
     def evaluate(self):
-        processed_audio, sr = maudio.FX_to_Audio([], self.genome, INPUT_AUDIO)
+        processed_audio, sr = maudio.FX_to_Audio(["Compressor","Reverb"], self.genome, INPUT_AUDIO)
         sf.write("temp_audio.wav", processed_audio, sr)
-        self.fitness = fitness.fitness_frequency_domain("temp_audio.wav", TARGET_AUDIO)
+        self.fitness, _, _, _ = fitness.fitness_frequency_domain("temp_audio.wav", TARGET_AUDIO)
         # self.fitness = sum([0.25 - (x - 0.7) ** 2 for x in self.genome])
         
     def mutate(self):
@@ -48,8 +48,11 @@ class Generation:
             self.people = []
 
     def evaluate(self):
+        count = 1
         for individual in self.people:
+            print(f"evaluate({count}/{POPULATION})     ", end='\r')
             individual.evaluate()
+            count += 1
         self.people.sort(key=lambda x: x.fitness, reverse=True)
 
     def tournament_select(self) -> Individual:
@@ -69,6 +72,7 @@ def crossover(parent1: Individual, parent2: Individual) -> Individual:
 def genetic_algorithm():
     generation = Generation()
     generation.evaluate()
+    print(f"Fitness = {str(generation.people[0].fitness)[:10]}, Value = {generation.people[0].genome}")
 
     for _ in range(MAX_GENERATIONS):
         new_generation = Generation(is_rand=False)
