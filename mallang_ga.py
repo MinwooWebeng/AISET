@@ -1,15 +1,23 @@
 import numpy as np
 import random
+import soundfile as sf
 
-GENOME_LENGTH = 4
-POPULATION = 100
-ROYAL_SET = 5
+import make_audio as maudio
+import fitness
+
+
+GENOME_LENGTH = 6
+POPULATION = 30
+ROYAL_SET = 4
 TOURNAMENT_SIZE = 5
 
 MAX_GENERATIONS = 50
-MUTATION_RATE = 0.8
-GENE_MUTATION_RATE = 0.5
+MUTATION_RATE = 0.5
+GENE_MUTATION_RATE = 0.3
 GENE_MUTATION_STRENGTH = 0.05
+
+INPUT_AUDIO = "./datasets/clean/audio_trot_1.wav"
+TARGET_AUDIO = "./datasets/processed/processed_audio_1.wav"
 
 class Individual:
     def __init__(self, gen=[]):
@@ -20,7 +28,10 @@ class Individual:
         self.fitness = None
 
     def evaluate(self):
-        self.fitness = sum([0.25 - (x - 0.7) ** 2 for x in self.genome])
+        processed_audio, sr = maudio.FX_to_Audio([], self.genome, INPUT_AUDIO)
+        sf.write("temp_audio.wav", processed_audio, sr)
+        self.fitness = fitness.fitness_frequency_domain("temp_audio.wav", TARGET_AUDIO)
+        # self.fitness = sum([0.25 - (x - 0.7) ** 2 for x in self.genome])
         
     def mutate(self):
         for i in range(len(self.genome)):
