@@ -1,7 +1,7 @@
 import numpy as np
 import librosa
 import soundfile as sf
-from pedalboard import Pedalboard, Compressor, Distortion, Delay, Reverb, PeakFilter
+from pedalboard import Pedalboard, Compressor, Distortion, Delay, Reverb, PeakFilter, Gain
 import os
 
 # Define available plugins with parameter ranges
@@ -41,7 +41,9 @@ available_plugins = {
         Reverb,
         {
             'room_size': (0.0, 1.0),      # Range: 0 (small) to 1 (large)
-            'damping': (0.0, 1.0)         # Range: 0 to 1
+            'damping': (0.0, 1.0),         # Range: 0 to 1
+            'wet_level': (0.0, 1.0),         # Range: 0 to 1
+            'dry_level': (0.0, 1.0)         # Range: 0 to 1
         }
     ),
     'Gain': (
@@ -112,7 +114,7 @@ def FX_to_Audio(parameters, input_audio_path, plugins_to_use = \
 
     return processed_audio, sample_rate
 
-def create_dataset(native_dataset_path, audio_files_path, output_dir):
+def create_dataset(plugins_path, audio_files_path, output_dir):
     """
     Create a dataset by applying plugins and parameters to audio files.
 
@@ -128,7 +130,7 @@ def create_dataset(native_dataset_path, audio_files_path, output_dir):
     os.makedirs(output_dir, exist_ok=True)
 
     # Read data from the text files
-    with open(native_dataset_path, 'r') as native_file:
+    with open(plugins_path, 'r') as native_file:
         native_data = native_file.readlines()
     
     with open(audio_files_path, 'r') as audio_file:
@@ -168,7 +170,7 @@ def create_dataset(native_dataset_path, audio_files_path, output_dir):
 # Example usage
 if __name__ == "__main__":
     create_dataset(
-        native_dataset_path="./native_dataset.txt",
+        plugins_path="./DynamicsTest.txt",
         audio_files_path="./audio_files.txt",
-        output_dir="./datasets/processed"
+        output_dir="./10s_datasets/Dynamics"
     )
