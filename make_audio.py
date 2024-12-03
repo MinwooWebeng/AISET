@@ -52,7 +52,10 @@ available_plugins = {
     )
 }
 
-def FX_to_Audio(plugins_to_use, parameters, input_audio_path):
+def FX_to_Audio(parameters, input_audio_path, plugins_to_use = \
+                ['PeakFilter', 'Compressor', 'Distortion', 'Delay', 'Reverb', 'Gain',\
+                 'PeakFilter', 'Compressor', 'Distortion', 'Delay', 'Reverb', 'Gain',\
+                 'PeakFilter', 'Compressor', 'Distortion', 'Delay', 'Reverb', 'Gain']):
     """
     Apply a sequence of audio effects to an input audio file.
     
@@ -151,7 +154,7 @@ def create_dataset(native_dataset_path, audio_files_path, output_dir):
 
         # Apply the effects using FX_to_Audio
         try:
-            processed_audio, sr = FX_to_Audio(plugins, parameters, audio_row)
+            processed_audio, sr = FX_to_Audio(parameters, audio_row, plugins)
         except Exception as e:
             print(f"Error processing file {audio_row} with plugins {plugins}: {e}")
             continue
