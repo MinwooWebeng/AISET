@@ -14,7 +14,7 @@ available_plugins = {
             'q': (0.1, 100.0)    # Range: 0.1 to 100
         }
     ),
-    'Compressor': (     #Compressor
+    'Compressor': (
         Compressor,
         {
             'threshold_db': (-40.0, 0.0),  # Range: -40 to 0 dB
@@ -69,6 +69,9 @@ def FX_to_Audio(parameters, input_audio_path, plugins_to_use = \
     Returns:
         np.ndarray: Processed audio signal.
         int: Sampling rate of the processed audio.
+
+    The Signal Path used for the Genetic Algorithm is:
+    ( EQ(PeakFilter) - Comp - Dist - Delay - Reverb - Gain ) * 3
     """
     # Verify plugins and calculate total expected parameters
     total_expected_params = 0
@@ -84,7 +87,7 @@ def FX_to_Audio(parameters, input_audio_path, plugins_to_use = \
     if len(parameters) != total_expected_params:
         raise ValueError(f"Incorrect number of parameters: expected {total_expected_params}, got {len(parameters)}.")
 
-    # Map normalized parameters to their actual ranges
+    # Map normalized parameters to their actual ranges (all parameters in GA uses float from 0.0 to 1.0)
     mapped_parameters = [
         (p_min + value * (p_max - p_min))
         for value, (p_min, p_max) in zip(parameters, parameter_ranges)
