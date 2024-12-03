@@ -29,4 +29,4 @@ def write_audio_files_to_txt(input_folder, output_file):
 
 # Example usage
 if __name__ == "__main__":
-    write_audio_files_to_txt(input_folder='./datasets/clean', output_file='audio_files.txt')
+    write_audio_files_to_txt(input_folder='./10s_datasets/clean', output_file='audio_files.txt')
