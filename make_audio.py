@@ -1,12 +1,20 @@
 import numpy as np
 import librosa
 import soundfile as sf
-from pedalboard import Pedalboard, Compressor, Distortion, Chorus, Delay, Reverb
+from pedalboard import Pedalboard, Compressor, Distortion, Delay, Reverb, PeakFilter
 import os
 
 # Define available plugins with parameter ranges
 available_plugins = {
-    'Compressor': (
+    'PeakFilter': (     #EQ with one peak
+        PeakFilter,
+        {
+            'cutoff_frequency_hz': (40.0, 22000.0),  # Range: 40Hz to 22kHz
+            'gain_db': (-12, 12),         # Range: -12 to 12dB
+            'q': (0.1, 100.0)    # Range: 0.1 to 100
+        }
+    ),
+    'Compressor': (     #Compressor
         Compressor,
         {
             'threshold_db': (-40.0, 0.0),  # Range: -40 to 0 dB
@@ -19,13 +27,6 @@ available_plugins = {
         Distortion,
         {
             'drive_db': (0.0, 40.0)       # Range: 0 to 40 dB
-        }
-    ),
-    'Chorus': (
-        Chorus,
-        {
-            'rate_hz': (0.1, 5.0),        # Range: 0.1 to 5 Hz
-            'depth': (0.1, 1.0)           # Range: 0.1 to 1.0
         }
     ),
     'Delay': (
@@ -41,6 +42,12 @@ available_plugins = {
         {
             'room_size': (0.0, 1.0),      # Range: 0 (small) to 1 (large)
             'damping': (0.0, 1.0)         # Range: 0 to 1
+        }
+    ),
+    'Gain': (
+        Gain,
+        {
+            'gain_db': (-6.0, 6.0)        # Range: -6 to 6 dB
         }
     )
 }
