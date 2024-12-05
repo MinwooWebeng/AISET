@@ -166,4 +166,4 @@ cython_debug/
 #.idea/
 
 temp/
-experiment_2/
+experiment_*
