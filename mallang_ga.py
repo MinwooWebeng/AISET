@@ -2,36 +2,43 @@ import numpy as np
 import random
 import soundfile as sf
 import os
+from concurrent.futures import ThreadPoolExecutor
 
 import make_audio as maudio
 import fitness
 
-GENOME_LENGTH = 6
-POPULATION = 20
-ROYAL_SET = 2
-TOURNAMENT_SIZE = 3
+GENOME_LENGTH = 42
+POPULATION = 100
+ROYAL_SET = 10
+TOURNAMENT_SIZE = 5
 
-MAX_GENERATIONS = 50
-MUTATION_RATE = 1.0
-GENE_MUTATION_RATE = 0.5
+MAX_GENERATIONS = 100
+MUTATION_RATE = 0.8
+GENE_MUTATION_RATE = 0.2
 GENE_MUTATION_STRENGTH = 0.05
 
-INPUT_AUDIO = "./10s_datasets/clean/audio_trot_1.wav"
-TARGET_AUDIO = "./10s_datasets/temp_target.wav"
+INPUT_AUDIO = "./10s_datasets/clean/audio_Ballade_4.wav"
+TARGET_AUDIO = "./10s_datasets/target.wav"
 
+i_name = 0
 class Individual:
     def __init__(self, gen=[]):
+        global i_name
         if len(gen) == 0:
             self.genome = np.random.uniform(low=0.0, high=1.0, size=GENOME_LENGTH)
         else:
             self.genome = gen
         self.fitness = None
+        self.i_name = i_name
+        i_name += 1
 
     def evaluate(self):
-        processed_audio, sr = maudio.FX_to_Audio(["Compressor","Reverb"], self.genome, INPUT_AUDIO)
-        sf.write("temp_audio.wav", processed_audio, sr)
-        self.fitness, _, _, _ = fitness.fitness_time_domain("temp_audio.wav", TARGET_AUDIO)
-        # self.fitness = sum([0.25 - (x - 0.7) ** 2 for x in self.genome])
+        processed_audio, sr = maudio.FX_to_Audio(self.genome, INPUT_AUDIO)
+        sf.write("temp/" + str(self.i_name) + "_temp_audio.wav", processed_audio, sr)
+        fq_fitness, _, _, _ = fitness.fitness_frequency_domain("temp/" + str(self.i_name) + "_temp_audio.wav", TARGET_AUDIO)
+        tm_fitness, _, _, _ = fitness.fitness_time_domain("temp/" + str(self.i_name) + "_temp_audio.wav", TARGET_AUDIO)
+        self.fitness = 0.5 * fq_fitness + 0.5 - 5 * (1 - tm_fitness)
+        os.remove("temp/" + str(self.i_name) + "_temp_audio.wav")
         
     def mutate(self):
         for i in range(len(self.genome)):
@@ -48,11 +55,15 @@ class Generation:
             self.people = []
 
     def evaluate(self):
-        count = 1
-        for individual in self.people:
-            print(f"evaluate({count}/{POPULATION})     ", end='\r')
-            individual.evaluate()
-            count += 1
+        # count = 1
+        # for individual in self.people:
+        #     print(f"evaluate({count}/{POPULATION})     ", end='\r')
+        #     individual.evaluate()
+        #     count += 1
+
+        with ThreadPoolExecutor() as executor:
+            executor.map(lambda x: x.evaluate(), self.people)
+
         self.people.sort(key=lambda x: x.fitness, reverse=True)
 
     def tournament_select(self) -> Individual:
@@ -89,8 +100,8 @@ def genetic_algorithm():
 
         new_generation.evaluate()
         print(f"Fitness = {str(new_generation.people[0].fitness)[:10]}, Value = {new_generation.people[0].genome}")
-        processed_audio, sr = maudio.FX_to_Audio(["Compressor","Reverb"], new_generation.people[0].genome, INPUT_AUDIO)
-        sf.write(str(i) + "_best.wav", processed_audio, sr)
+        processed_audio, sr = maudio.FX_to_Audio(new_generation.people[0].genome, INPUT_AUDIO)
+        sf.write("MT_" + str(i) + "_best.wav", processed_audio, sr)
 
         generation = new_generation
 
