@@ -1,15 +1,11 @@
-Project Files
+# Project Files
 
-fitness.py
+## **1. fitness.py**
+- Contains the implementation of our **fitness function**.
 
-Contains the implementation of our fitness function.
+## **2. mallang_ga.py**
+- Implements our **Genetic Algorithm (GA)**.
 
-mallang_ga.py
-
-Implements our Genetic Algorithm (GA).
-
-make_audio.py
-
-Generates audio based on various combinations of function parameters.
-
+## **3. make_audio.py**
+- Generates **audio** based on various combinations of function parameters.
 
